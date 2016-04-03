@@ -24,15 +24,19 @@ The program can send data to the Serial Monitor of the Arduino IDE.  Normally se
 It is important that the main loop not stall at any given task during operation of the Kyub because the loop cycle time defines how often the individual pads are polled.  Accordingly instructions like "delay" are largely absent and time-consuming routines are broken up into small chunks that can be implemented over several loops.  
 
 //set scale according to presses of mode button
+
 This section of the code response to the Mode button to switch between the scales assigned to the pads.  A different color denotes the particular scale selected in the Plexiglas Kyub.  Because this code does not execute during normal playing of the Kyub a one second delay is implemented for debouncing of the pushbutton.
 
 //pad calibration--early after boot
+
 How long it takes each pad to charge can vary depending on the length of the connecting wires etc..  This code section performs an initial calibration.  For this reason when the Kyub is reset you want to have your fingers removed from any of the active (non-ground) pads and have the queue oriented in a normal vertical orientation.
 
 //loop through each of 11 pads according to pnum
+
 The program needs to respond quickly to any pad touch and accordingly can't stop to wait for other code sections.  For this reason all of the processing is distributed among the looping that occurs during the section using state variables.  It is a way to create a low overhead real-time operating system.  The program looks at each of the 11 pads one at a time in this section
 
 //for high speed, read A/D for x, y, and z interleaved at times of necessary delay
+
 The A/D converter can only move so fast and so instead of wasting time waiting for the A/D converter to charge, the A/D conversions are separated by delays during which actual processing occurs.  This makes the code a little messy but is a trade-off for speed.
 
 ## CHARGEUP
@@ -43,17 +47,22 @@ The pad currently indexed by the loop is charged up through one megaohm resister
 The same pad is then discharged through the one megaohm resister.  The charge and discharge time will be averaged to get rid of a gate threshold bias.  Again A/D conversions for the y-and z- axes are slipped in here at certain points where there is an apparent delay in the measurement process.
 
 //touch detected ****************************
+
 The charge time is compared to the calibration earlier to decide if a pad was being touched.  If so, a state variable is set indicating that there is a note that needs to be played associated with that pad (pad mode equals zero).  In addition the pad state is marked indicating that the pad is in a state of being touched.
 
 //check touch induced acceleration
+
 The circular buffer holding all of those acceleration values is then checked to find a peak acceleration near the touch point (either before or after it).  Sometimes the peak occurs before the touch is detected possibly because it takes a while to scan through all of the pad.  Each of the peaks (x, y, z) is stored in a different variable that will be used depending on which pad was touch
 
 //load up pending all notes with volume numbers
+
 Peak accelerations are matched to the notes that are waiting to play depending on the location of the pad on the Kyub aligning with the different axes of acceleration.
 
 //play notes
+
 Accelerations are converted to a note volume using a simple formula (times four).  More sophisticated acceleration curves could be added here.  The MIDI note-on command is sent, storing the note value so that it can be turned off later.  The LED is turned on to an appropriate color arbitrarily selected for pad
 
 //turn off notes
+
 When the pad is released, the corresponding node is turned off.
 
